@@ -4,31 +4,12 @@
   padding: 0;
 }
 
-:root {
-  --bg: #060D1A;
-  --surface: #0C1628;
-  --card: #101E30;
-  --card2: #0E1A2A;
-  --accent: #2979FF;
-  --teal: #00E5FF;
-  --gold: #FFB300;
-  --silver: #90A4AE;
-  --bronze: #A1673A;
-  --purple: #7C4DFF;
-  --purple-bg: #1A1040;
-  --text: #E8F0FC;
-  --sub: #607D9B;
-  --muted: #2A3D55;
-  --border: #142030;
-  --green: #00E676;
-}
-
 body {
-  background: #030810;
-  color: var(--text);
+  background: #060D1A;
+  color: #E8F0FC;
   font-family: -apple-system, 'Inter', sans-serif;
   min-height: 100vh;
 }
 
 button { cursor: pointer; font-family: inherit; }
-a { text-decoration:
+a { text-decoration: none; }
