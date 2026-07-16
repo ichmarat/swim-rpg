@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 
-const API = 'http://localhost:3001'
+const API = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
 const STAGES = [
   { key: 'novice',   label: 'Новичок',  min: 0,    next: 100  },
