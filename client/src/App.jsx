@@ -20,23 +20,19 @@ function getStage(km) {
 }
 
 // Импортируем персонажей
-import novice_m   from './assets/chars/novice_m.png'
-import novice_f   from './assets/chars/novice_f.png'
-import swimmer_m  from './assets/chars/swimmer_m.png'
-import swimmer_f  from './assets/chars/swimmer_f.png'
-import athlete_m  from './assets/chars/athlete_m.png'
-import athlete_f  from './assets/chars/athlete_f.png'
-import champion_m from './assets/chars/champion_m.png'
-import champion_f from './assets/chars/champion_f.png'
-import legend_m   from './assets/chars/legend_m.png'
-import legend_f   from './assets/chars/legend_f.png'
-import neptune_m  from './assets/chars/neptune_m.png'
-import neptune_f  from './assets/chars/neptune_f.png'
-
 const CHAR_IMAGES = {
-  novice_m, novice_f, swimmer_m, swimmer_f,
-  athlete_m, athlete_f, champion_m, champion_f,
-  legend_m, legend_f, neptune_m, neptune_f,
+  novice_m:   '/chars/novice_m.png',
+  novice_f:   '/chars/novice_f.png',
+  swimmer_m:  '/chars/swimmer_m.png',
+  swimmer_f:  '/chars/swimmer_f.png',
+  athlete_m:  '/chars/athlete_m.png',
+  athlete_f:  '/chars/athlete_f.png',
+  champion_m: '/chars/champion_m.png',
+  champion_f: '/chars/champion_f.png',
+  legend_m:   '/chars/legend_m.png',
+  legend_f:   '/chars/legend_f.png',
+  neptune_m:  '/chars/neptune_m.png',
+  neptune_f:  '/chars/neptune_f.png',
 }
 
 export default function App() {
