@@ -6,7 +6,23 @@ require('dotenv').config();
 const { pool, migrate } = require('./db');
 
 const app = express();
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+
+const ALLOWED_ORIGINS = [
+  'http://localhost:5173',
+  process.env.CLIENT_URL,
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Разрешаем запросы без origin (например, curl/Postman) и из списка разрешённых
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
 app.use(express.json());
 
 const {
@@ -20,11 +36,13 @@ const {
 
 // ── STRAVA OAuth ──────────────────────────────────────────────
 
+// Шаг 1: редирект на Strava
 app.get('/auth/strava', (req, res) => {
   const url = `https://www.strava.com/oauth/authorize?client_id=${STRAVA_CLIENT_ID}&redirect_uri=${STRAVA_REDIRECT_URI}&response_type=code&scope=activity:read_all`;
   res.redirect(url);
 });
 
+// Шаг 2: Strava возвращает code, меняем на токен
 app.get('/auth/strava/callback', async (req, res) => {
   const { code } = req.query;
   try {
@@ -40,6 +58,7 @@ app.get('/auth/strava/callback', async (req, res) => {
     const name = `${athlete.firstname} ${athlete.lastname}`;
     const gender = athlete.sex === 'F' ? 'f' : 'm';
 
+    // Upsert пользователя: создаём если новый, обновляем токены если уже есть
     await pool.query(
       `INSERT INTO users (id, name, avatar, gender, access_token, refresh_token, expires_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -77,6 +96,7 @@ async function syncActivities(userId) {
 
     const swims = response.data.filter(a => a.type === 'Swim' || a.sport_type === 'Swim');
 
+    // Upsert каждую тренировку (ON CONFLICT DO UPDATE — на случай, если Strava-запись изменилась)
     for (const a of swims) {
       await pool.query(
         `INSERT INTO workouts (id, user_id, date, distance_m, duration_sec, name)
@@ -90,6 +110,7 @@ async function syncActivities(userId) {
       );
     }
 
+    // Пересчитываем total_km из реальных данных в БД (источник истины — таблица workouts)
     const { rows: sumRows } = await pool.query(
       'SELECT COALESCE(SUM(distance_m), 0) AS total FROM workouts WHERE user_id = $1',
       [userId]
@@ -117,6 +138,7 @@ function auth(req, res, next) {
   }
 }
 
+// Профиль текущего пользователя
 app.get('/api/me', auth, async (req, res) => {
   const { rows } = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.userId]);
   const user = rows[0];
@@ -147,6 +169,7 @@ app.get('/api/me', auth, async (req, res) => {
   });
 });
 
+// Рейтинг
 app.get('/api/leaderboard', auth, async (req, res) => {
   const { rows } = await pool.query(
     'SELECT id, name, avatar, total_km AS "totalKm" FROM users ORDER BY total_km DESC'
@@ -162,6 +185,7 @@ app.get('/api/leaderboard', auth, async (req, res) => {
   res.json(sorted);
 });
 
+// Синхронизировать вручную
 app.post('/api/sync', auth, async (req, res) => {
   await syncActivities(req.user.userId);
   const { rows } = await pool.query(
@@ -189,6 +213,7 @@ function getStage(km) {
   return { ...STAGES[0], index: 0 };
 }
 
+// Тестовый endpoint — добавить km вручную (только для разработки)
 app.post('/api/debug/add-km', auth, async (req, res) => {
   const { km } = req.body;
   const { rows } = await pool.query(
