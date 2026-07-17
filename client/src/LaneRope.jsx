@@ -49,7 +49,6 @@ export function StagePath({ stages, currentIndex, icons }) {
     <div style={{ display: 'flex', alignItems: 'flex-start' }}>
       {stages.map((s, i) => {
         const isCurrent = i === currentIndex
-        const lineActive = i < currentIndex || (i === currentIndex && i > 0)
         const Icon = icons[i]
         return (
           <div key={s.key} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
